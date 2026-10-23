@@ -12,7 +12,12 @@ running a fresh repo-wide grep.
 > the last marker from a file, delete its row. See the note in
 > [`CONTRIBUTING.md`](../CONTRIBUTING.md).
 >
-> **Last verified:** 2026-10-18, by grepping `apps/frontend/src` for wiring
+> **Paths are checked in CI:** every backtick-quoted repo path in this file
+> must exist. `node scripts/check-wiring-status-paths.mjs` runs in
+> `frontend-ci.yml` and fails the build if one doesn't. Always write full
+> paths from the repo root, starting with `apps/`.
+>
+> **Last verified:** 2026-10-22, by grepping `apps/frontend/src` for wiring
 > markers. Re-run that grep if this date is old:
 >
 > ```bash
@@ -32,34 +37,37 @@ running a fresh repo-wide grep.
 | Flow / file | Status | Markers | Tracking issue |
 | --- | --- | --- | --- |
 | `apps/frontend/src/components/events/TicketEscrowIntegration.tsx` | 🔴 Mocked | 4 | [#319](https://github.com/frienzy514-png/stellar-TrueStub/issues/319) |
-| `apps/frontend/src/components/ticket-events/TicketEscrowIntegration.tsx` | 🔴 Mocked | 4 | [#319](https://github.com/frienzy514-png/stellar-TrueStub/issues/319) |
 | `apps/frontend/src/components/ticket-listing/TicketEscrowWrapper.tsx` | 🔴 Mocked | 3 | [#319](https://github.com/frienzy514-png/stellar-TrueStub/issues/319) |
-| `apps/frontend/src/components/ticket-purchase/TicketEscrowWrapper.tsx` | 🔴 Mocked | 3 | [#319](https://github.com/frienzy514-png/stellar-TrueStub/issues/319) |
 | `apps/frontend/src/app/dashboard/events/new/page.tsx` (create event → `INSERT INTO public.events`) | 🔴 Mocked | 1 (`TODO: wire to Hasura mutation`) | _none filed_ |
 
-## Removed since the previous version of this table
+## No longer mocked
 
-None of these files has a wiring marker any more. Some had moved, which
-left the old paths in this table pointing nowhere.
+These files were listed in earlier versions of this table (some under old
+paths that no longer exist). They have no wiring marker any more. Paths
+below are their current locations.
 
-| Previously listed as | Now |
+| File | Notes |
 | --- | --- |
-| `components/auth/NewPassword.tsx` | Uses Firebase `confirmPasswordReset`; no marker. |
-| `components/profile/UserProfileCard.tsx` | Now `components/dashboard/UserProfileCard.tsx`; no marker. |
-| `components/settings/NotificationPreferences.tsx` | Now `components/dashboard/profile/NotificationPreferences.tsx` (calls `/api/graphql`) and `components/notifications/NotificationPreferences.tsx`; no marker in either. |
-| `stores/favorites.store.ts` | Now `core/store/data/favorites.store.ts`. No marker, but it still seeds from `STUB_EVENTS` mock data. |
-| `app/dashboard/earnings` | No marker. |
-| `app/dashboard/escrow/[id]/receipt` | No marker. |
-| `app/dashboard/listings/[id]/offers` | No marker. |
-| `components/escrow/TicketEscrowIntegration.tsx`, `components/escrow/TicketEscrowWrapper.tsx` | These paths don't exist. The real files are the four `TicketEscrow*` rows above. |
+| `apps/frontend/src/components/auth/NewPassword.tsx` | Uses Firebase `confirmPasswordReset`. |
+| `apps/frontend/src/components/dashboard/UserProfileCard.tsx` | Moved from the old `profile/` directory. |
+| `apps/frontend/src/components/dashboard/profile/NotificationPreferences.tsx` | Calls `/api/graphql`. Moved from the old `settings/` directory. |
+| `apps/frontend/src/components/notifications/NotificationPreferences.tsx` | Live preference toggle; no marker. |
+| `apps/frontend/src/core/store/data/favorites.store.ts` | Moved from the old top-level `stores/` directory. No marker, but it still seeds from `STUB_EVENTS` mock data. |
+| `apps/frontend/src/app/dashboard/earnings` | No marker. |
+| `apps/frontend/src/app/dashboard/escrow/[id]/receipt` | No marker. |
+| `apps/frontend/src/app/dashboard/listings/[id]/offers` | No marker. |
 
 ## Notes
 
-- The `TicketEscrow*` copies are tracked separately because each one still
-  has its own wiring markers. `ticket-events/` mirrors `events/`, and its
-  removal is tracked in [`DUPLICATE_BASENAMES.md`](DUPLICATE_BASENAMES.md).
-  Consolidating them is out of scope here.
-- `components/escrow/views/EscrowJustification.tsx` has a
+- The `TicketEscrow*` components used to exist twice each
+  (`events/` + `ticket-events/`, `ticket-listing/` + `ticket-purchase/`).
+  They were merged into the two files listed above (#364). The deleted
+  `ticket-events/` and `ticket-purchase/` copies held a half-applied attempt
+  to call `apps/frontend/src/lib/booking-escrow-api.ts` that didn't compile
+  (it mixed the old booking/room names with the ticket-purchase ones), so
+  the working copies were kept. Wiring them for real is #319.
+  There has never been a `TicketEscrow*` file under `components/escrow/`.
+- `apps/frontend/src/components/escrow/views/EscrowJustification.tsx` has a
   `TODO: wire PDF generation` marker. That is a feature gap, not a GraphQL
   wiring gap, so it isn't listed.
 - If you find a marker that is missing from this table, add it (and file an
