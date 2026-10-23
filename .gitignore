@@ -34,6 +34,14 @@ yarn-error.log*
 # test snapshots (Jest + Rust/Soroban)
 **/__snapshots__/
 **/test_snapshots/
+*.snap
+
+# test coverage
+coverage/
+
+# build output
+dist/
+build/
 
 # IDE / editor
 .idea/

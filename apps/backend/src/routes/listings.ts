@@ -3,8 +3,14 @@ import { z } from "zod";
 import { assessListingRisk } from "../services/listing-fraud.service";
 import { listingAlertService } from "../services/listing-alert.service";
 import { registerRoute } from "../openapi/registry";
+import { requireAuthForWrites } from "../middleware/auth";
 
 export const listingsRouter = Router();
+
+// Auth for write methods (POST/PATCH/DELETE) is enforced in the route file
+// itself (matching the users.ts pattern) rather than being applied as
+// mount-time middleware in index.ts (issue #369).
+listingsRouter.use(requireAuthForWrites);
 
 const listingSchema = z.object({
   id: z.string().optional(),

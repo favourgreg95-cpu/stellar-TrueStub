@@ -48,26 +48,21 @@ below are their current locations.
 
 | File | Notes |
 | --- | --- |
-| `apps/frontend/src/components/auth/NewPassword.tsx` | Uses Firebase `confirmPasswordReset`. |
-| `apps/frontend/src/components/dashboard/UserProfileCard.tsx` | Moved from the old `profile/` directory. |
-| `apps/frontend/src/components/dashboard/profile/NotificationPreferences.tsx` | Calls `/api/graphql`. Moved from the old `settings/` directory. |
-| `apps/frontend/src/components/notifications/NotificationPreferences.tsx` | Live preference toggle; no marker. |
-| `apps/frontend/src/core/store/data/favorites.store.ts` | Moved from the old top-level `stores/` directory. No marker, but it still seeds from `STUB_EVENTS` mock data. |
-| `apps/frontend/src/app/dashboard/earnings` | No marker. |
-| `apps/frontend/src/app/dashboard/escrow/[id]/receipt` | No marker. |
-| `apps/frontend/src/app/dashboard/listings/[id]/offers` | No marker. |
+| `components/auth/NewPassword.tsx` | Uses Firebase `confirmPasswordReset`; no marker. |
+| `components/profile/UserProfileCard.tsx` | Now `components/dashboard/UserProfileCard.tsx`; no marker. |
+| `components/settings/NotificationPreferences.tsx` | Now `components/dashboard/profile/NotificationPreferences.tsx` (calls `/api/graphql`) and `components/notifications/NotificationPreferences.tsx`; no marker in either. |
+| `stores/favorites.store.ts` | Now `core/store/data/favorites.store.ts`. No marker, but it still seeds from `STUB_EVENTS` mock data. |
+| `app/dashboard/earnings` | No marker. |
+| `app/dashboard/escrow/[id]/receipt` | No marker. |
+| `app/dashboard/listings/[id]/offers` | No marker. |
+| `components/escrow/TicketEscrowIntegration.tsx`, `components/escrow/TicketEscrowWrapper.tsx` | These paths don't exist. The real files are the two `TicketEscrow*` rows above. |
 
 ## Notes
 
-- The `TicketEscrow*` components used to exist twice each
-  (`events/` + `ticket-events/`, `ticket-listing/` + `ticket-purchase/`).
-  They were merged into the two files listed above (#364). The deleted
-  `ticket-events/` and `ticket-purchase/` copies held a half-applied attempt
-  to call `apps/frontend/src/lib/booking-escrow-api.ts` that didn't compile
-  (it mixed the old booking/room names with the ticket-purchase ones), so
-  the working copies were kept. Wiring them for real is #319.
-  There has never been a `TicketEscrow*` file under `components/escrow/`.
-- `apps/frontend/src/components/escrow/views/EscrowJustification.tsx` has a
+- The `TicketEscrow*` duplicates were consolidated (#364). The canonical
+  copies are `components/events/TicketEscrowIntegration.tsx` and
+  `components/ticket-listing/TicketEscrowWrapper.tsx`.
+- `components/escrow/views/EscrowJustification.tsx` has a
   `TODO: wire PDF generation` marker. That is a feature gap, not a GraphQL
   wiring gap, so it isn't listed.
 - If you find a marker that is missing from this table, add it (and file an

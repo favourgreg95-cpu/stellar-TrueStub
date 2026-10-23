@@ -3,8 +3,10 @@ src/graphql/generated/
 
 # testing
 /coverage
+coverage/
 **/__snapshots__/
 **/test_snapshots/
+*.snap
 jest-results.json
 
 # next.js

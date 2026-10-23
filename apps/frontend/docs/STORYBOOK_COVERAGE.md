@@ -13,7 +13,7 @@ files (issue #387).
 | `ui/badge` | `UI/Badge` |
 | `ui/button` | `UI/Button` |
 | `ui/table` | `UI/Table` (added in #387) |
-| `dashboard/EscrowStatusBadge` | `Dashboard/EscrowStatusBadge` (added in #387) |
+| `escrow/EscrowStatusBadge` | `Escrow/EscrowStatusBadge` (consolidated in #368) |
 | `dashboard/EscrowsByStatus` | `Dashboard/EscrowsByStatus` (added in #387) |
 | `escrow/RealTimeEscrowStatus` | `Escrow/RealTimeEscrowStatus` (added in #387) |
 | `auth/ResetPasswordForm` | `Auth/ResetPasswordForm` (added in #387) |

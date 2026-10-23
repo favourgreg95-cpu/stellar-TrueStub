@@ -3,10 +3,28 @@
 /**
  * EscrowStatusBadge Component
  *
- * Displays the real-time status of an escrow with automatic polling.
- * Updates every 30 seconds by default to show the latest escrow status.
+ * A unified status badge that supports two modes:
  *
- * @example
+ * 1. **Static mode** — pass a `status` string and the badge renders
+ *    immediately using the presentational styling from the former
+ *    `dashboard/EscrowStatusBadge`. No polling, no hooks. Use this when
+ *    you already know the status (e.g. from mock data or a list view).
+ *
+ * 2. **Polling mode** — pass `escrowId` (contract ID) and `signer`
+ *    (wallet address) and the badge polls the on-chain escrow indexer
+ *    at the given interval, updating automatically. Use this for
+ *    detail views where live status matters.
+ *
+ * Issue #368 consolidated the former `dashboard/EscrowStatusBadge`
+ * (static) and `escrow/EscrowStatusBadge` (polling) into this single
+ * component.
+ *
+ * @example Static mode
+ * ```tsx
+ * <EscrowStatusBadge status="FUNDED" />
+ * ```
+ *
+ * @example Polling mode
  * ```tsx
  * <EscrowStatusBadge
  *   escrowId="CONTRACT_ID"
@@ -16,6 +34,7 @@
  * ```
  */
 
+import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import {
   useEscrowStatus,
@@ -25,47 +44,89 @@ import {
 } from './hook/useEscrowStatus';
 
 interface EscrowStatusBadgeProps {
-  /**
-   * The contract ID of the escrow
-   */
-  escrowId: string;
-
-  /**
-   * The wallet address of the signer
-   */
-  signer: string;
-
-  /**
-   * Optional refetch interval in milliseconds
-   * @default 30000 (30 seconds)
-   */
+  /** Direct status string — renders immediately without polling (static mode) */
+  status?: string;
+  /** Contract ID for on-chain status polling (polling mode) */
+  escrowId?: string;
+  /** Wallet address of the signer (polling mode) */
+  signer?: string;
+  /** Refetch interval in ms (polling mode, default 30000) */
   refetchInterval?: number;
-
-  /**
-   * Whether to validate the escrow status on-chain
-   * @default true
-   */
+  /** Validate on-chain (polling mode, default true) */
   validateOnChain?: boolean;
-
-  /**
-   * Additional CSS classes to apply to the badge
-   */
+  /** Additional CSS classes */
   className?: string;
-
-  /**
-   * Whether to show a loading indicator
-   * @default true
-   */
+  /** Show loading indicator (polling mode, default true) */
   showLoading?: boolean;
 }
 
 /**
- * Real-time escrow status badge component
- *
- * Automatically polls the escrow status at the specified interval
- * and displays it with appropriate styling based on the status.
+ * Presentational status configuration for static mode.
+ * Mirrors the former `dashboard/EscrowStatusBadge` styling.
+ */
+const statusConfig: Record<string, { className: string; icon: string; text: string }> = {
+  PENDING: {
+    className:
+      'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
+    icon: '🟡',
+    text: 'Pending',
+  },
+  ACTIVE: {
+    className:
+      'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
+    icon: '🟢',
+    text: 'Active',
+  },
+  FUNDED: {
+    className:
+      'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
+    icon: '🟢',
+    text: 'Funded',
+  },
+  COMPLETED: {
+    className:
+      'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800',
+    icon: '🔵',
+    text: 'Completed',
+  },
+  RELEASED: {
+    className:
+      'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800',
+    icon: '🔵',
+    text: 'Released',
+  },
+  DISPUTED: {
+    className:
+      'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
+    icon: '🔴',
+    text: 'Disputed',
+  },
+  INDISPUTE: {
+    className:
+      'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
+    icon: '🔴',
+    text: 'In Dispute',
+  },
+  RESOLVED: {
+    className:
+      'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800',
+    icon: '⚖️',
+    text: 'Resolved',
+  },
+  CANCELLED: {
+    className:
+      'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700',
+    icon: '⚪',
+    text: 'Cancelled',
+  },
+};
+
+/**
+ * Unified escrow status badge component supporting both static and
+ * polling modes (issue #368).
  */
 export function EscrowStatusBadge({
+  status,
   escrowId,
   signer,
   refetchInterval = 30000,
@@ -73,13 +134,42 @@ export function EscrowStatusBadge({
   className = '',
   showLoading = true,
 }: EscrowStatusBadgeProps) {
+  // ── Static mode ──────────────────────────────────────────────────────────
+  // When a `status` prop is provided, render immediately without polling.
+  if (status !== undefined) {
+    const normalizedKey = status.toUpperCase().replace(/[_\s-]/g, '');
+    const config =
+      statusConfig[normalizedKey] ||
+      statusConfig[status.toUpperCase()] || {
+        className:
+          'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300',
+        icon: 'ℹ️',
+        text: status,
+      };
+
+    return (
+      <span
+        className={cn(
+          'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border',
+          config.className,
+          className,
+        )}
+      >
+        <span className="text-xs">{config.icon}</span>
+        {config.text}
+      </span>
+    );
+  }
+
+  // ── Polling mode ─────────────────────────────────────────────────────────
+  // When `escrowId` and `signer` are provided, poll on-chain status.
   const {
     data: escrow,
     isLoading,
     error,
   } = useEscrowStatus({
-    contractId: escrowId,
-    signer,
+    contractId: escrowId ?? '',
+    signer: signer ?? '',
     refetchInterval,
     validateOnChain,
   });
@@ -105,14 +195,14 @@ export function EscrowStatusBadge({
   }
 
   // Get the status string and variant
-  const status = getEscrowStatusString((escrow as any) ?? null);
-  const variant = getStatusVariant(status);
-  const formattedStatus = formatStatus(status);
+  const resolvedStatus = getEscrowStatusString((escrow as any) ?? null);
+  const variant = getStatusVariant(resolvedStatus);
+  const formattedStatus = formatStatus(resolvedStatus);
 
   return (
     <Badge variant={variant} className={className}>
       <span className="flex items-center gap-1">
-        <StatusIcon status={status} />
+        <StatusIcon status={resolvedStatus} />
         {formattedStatus}
       </span>
     </Badge>
@@ -120,7 +210,7 @@ export function EscrowStatusBadge({
 }
 
 /**
- * Status icon component
+ * Status icon component for polling mode.
  */
 function StatusIcon({ status }: { status: string }) {
   const statusLower = status.toLowerCase();
