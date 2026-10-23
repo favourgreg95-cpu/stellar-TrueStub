@@ -35,8 +35,13 @@ import { changelogService } from "../services/changelog.service";
 import { CHANGELOG_ENTRY_TYPES } from "../services/changelog-taxonomy";
 import { AppError } from "../middleware/errorHandler";
 import { getRequestId } from "../middleware/requestLogger";
+import { requireAuth } from "../middleware/auth";
 
 export const disputesRouter = Router();
+
+// Auth is enforced in the route file itself (matching the users.ts pattern)
+// rather than being applied as mount-time middleware in index.ts (issue #369).
+disputesRouter.use(requireAuth);
 
 /**
  * SLA threshold for disputes sitting in ESCALATED (issue #317).

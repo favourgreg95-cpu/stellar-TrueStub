@@ -1,6 +1,6 @@
 "use client";
 
-import { EscrowStatusBadge } from "@/components/dashboard/EscrowStatusBadge";
+import { EscrowStatusBadge } from "@/components/escrow/EscrowStatusBadge";
 import { Button } from "@/components/ui/button";
 import {
   Table,

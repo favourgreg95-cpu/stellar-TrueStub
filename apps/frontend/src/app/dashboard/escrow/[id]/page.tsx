@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { EscrowOverviewCard } from "@/components/escrow/EscrowOverviewCard";
-import { EscrowStatusBadge } from "@/components/dashboard/EscrowStatusBadge";
+import { EscrowStatusBadge } from "@/components/escrow/EscrowStatusBadge";
 import { InvoiceHeader } from "@/components/escrow/InvoiceHeader";
 import { ProcessStepper } from "@/components/escrow/ProcessStepper";
 import { EscrowPartyInfo } from "@/components/escrow/views/EscrowPartyInfo";
